@@ -1,0 +1,244 @@
+BEGIN;
+
+
+CREATE TABLE IF NOT EXISTS public.alumnos
+(
+    id_alumno serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    curp character varying(18) COLLATE pg_catalog."default",
+    fecha_nacimiento date,
+    nacionalidad character varying(50) COLLATE pg_catalog."default",
+    nivel_escolar character varying(20) COLLATE pg_catalog."default",
+    grupo_asignado character varying(10) COLLATE pg_catalog."default",
+    escuela_asignada character varying(100) COLLATE pg_catalog."default",
+    id_tutor integer,
+    CONSTRAINT alumnos_pkey PRIMARY KEY (id_alumno)
+);
+
+CREATE TABLE IF NOT EXISTS public.alumnos_grupos
+(
+    id_asignacion serial NOT NULL,
+    id_alumno integer,
+    id_grupo integer,
+    id_ciclo integer,
+    CONSTRAINT alumnos_grupos_pkey PRIMARY KEY (id_asignacion)
+);
+
+CREATE TABLE IF NOT EXISTS public.ciclos_escolares
+(
+    id_ciclo serial NOT NULL,
+    nombre_ciclo character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    fecha_inicio date NOT NULL,
+    fecha_fin date NOT NULL,
+    ciclo_activo boolean DEFAULT true,
+    CONSTRAINT ciclos_escolares_pkey PRIMARY KEY (id_ciclo)
+);
+
+CREATE TABLE IF NOT EXISTS public.coordinadores_estatales
+(
+    id_coordinador serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    curp character varying(18) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    telefono character varying(15) COLLATE pg_catalog."default",
+    estado_asignado character varying(50) COLLATE pg_catalog."default",
+    usuario character varying(50) COLLATE pg_catalog."default",
+    "contraseña" character varying(255) COLLATE pg_catalog."default",
+    id_coordinador_general integer,
+    CONSTRAINT coordinadores_estatales_pkey PRIMARY KEY (id_coordinador),
+    CONSTRAINT coordinadores_estatales_usuario_key UNIQUE (usuario)
+);
+
+CREATE TABLE IF NOT EXISTS public.coordinadores_generales
+(
+    id_coordinador serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    curp character varying(18) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    telefono character varying(15) COLLATE pg_catalog."default",
+    usuario character varying(50) COLLATE pg_catalog."default",
+    "contraseña" character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT coordinadores_generales_pkey PRIMARY KEY (id_coordinador),
+    CONSTRAINT coordinadores_generales_usuario_key UNIQUE (usuario)
+);
+
+CREATE TABLE IF NOT EXISTS public.directores
+(
+    id_director serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    curp character varying(18) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    telefono character varying(15) COLLATE pg_catalog."default",
+    escuela_asignada character varying(100) COLLATE pg_catalog."default",
+    usuario character varying(50) COLLATE pg_catalog."default",
+    "contraseña" character varying(255) COLLATE pg_catalog."default",
+    id_coordinador_estatal integer,
+    CONSTRAINT directores_pkey PRIMARY KEY (id_director),
+    CONSTRAINT directores_usuario_key UNIQUE (usuario)
+);
+
+CREATE TABLE IF NOT EXISTS public.escuelas
+(
+    id_escuela serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    direccion character varying(255) COLLATE pg_catalog."default",
+    estado character varying(50) COLLATE pg_catalog."default",
+    municipio character varying(50) COLLATE pg_catalog."default",
+    codigo_postal character varying(10) COLLATE pg_catalog."default",
+    capacidad_total integer,
+    capacidad_ocupada integer DEFAULT 0,
+    CONSTRAINT escuelas_pkey PRIMARY KEY (id_escuela)
+);
+
+CREATE TABLE IF NOT EXISTS public.grupos
+(
+    id_grupo serial NOT NULL,
+    nombre_grupo character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    nivel_escolar character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    cupo_maximo integer NOT NULL,
+    cupo_ocupado integer DEFAULT 0,
+    id_escuela integer,
+    CONSTRAINT grupos_pkey PRIMARY KEY (id_grupo)
+);
+
+CREATE TABLE IF NOT EXISTS public.horarios
+(
+    id_horario serial NOT NULL,
+    id_grupo integer,
+    id_profesor integer,
+    materia character varying(100) COLLATE pg_catalog."default",
+    dia_semana character varying(20) COLLATE pg_catalog."default",
+    hora_inicio time without time zone,
+    hora_fin time without time zone,
+    CONSTRAINT horarios_pkey PRIMARY KEY (id_horario)
+);
+
+CREATE TABLE IF NOT EXISTS public.profesores
+(
+    id_profesor serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    curp character varying(18) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    telefono character varying(15) COLLATE pg_catalog."default",
+    grupo_asignado character varying(10) COLLATE pg_catalog."default",
+    escuela_asignada character varying(100) COLLATE pg_catalog."default",
+    usuario character varying(50) COLLATE pg_catalog."default",
+    "contraseña" character varying(255) COLLATE pg_catalog."default",
+    id_director integer,
+    CONSTRAINT profesores_pkey PRIMARY KEY (id_profesor),
+    CONSTRAINT profesores_usuario_key UNIQUE (usuario)
+);
+
+CREATE TABLE IF NOT EXISTS public.transferencias_alumnos
+(
+    id_transferencia serial NOT NULL,
+    id_alumno integer,
+    id_escuela_origen integer,
+    id_escuela_destino integer,
+    fecha_solicitud date,
+    estatus_transferencia character varying(20) COLLATE pg_catalog."default",
+    CONSTRAINT transferencias_alumnos_pkey PRIMARY KEY (id_transferencia)
+);
+
+CREATE TABLE IF NOT EXISTS public.tutores
+(
+    id_tutor serial NOT NULL,
+    nombre character varying(100) COLLATE pg_catalog."default",
+    curp character varying(18) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default",
+    telefono character varying(15) COLLATE pg_catalog."default",
+    relacion character varying(50) COLLATE pg_catalog."default",
+    CONSTRAINT tutores_pkey PRIMARY KEY (id_tutor)
+);
+
+ALTER TABLE IF EXISTS public.alumnos
+    ADD CONSTRAINT alumnos_id_tutor_fkey FOREIGN KEY (id_tutor)
+    REFERENCES public.tutores (id_tutor) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.alumnos_grupos
+    ADD CONSTRAINT alumnos_grupos_id_alumno_fkey FOREIGN KEY (id_alumno)
+    REFERENCES public.alumnos (id_alumno) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.alumnos_grupos
+    ADD CONSTRAINT alumnos_grupos_id_ciclo_fkey FOREIGN KEY (id_ciclo)
+    REFERENCES public.ciclos_escolares (id_ciclo) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.alumnos_grupos
+    ADD CONSTRAINT alumnos_grupos_id_grupo_fkey FOREIGN KEY (id_grupo)
+    REFERENCES public.grupos (id_grupo) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.coordinadores_estatales
+    ADD CONSTRAINT coordinadores_estatales_id_coordinador_general_fkey FOREIGN KEY (id_coordinador_general)
+    REFERENCES public.coordinadores_generales (id_coordinador) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.directores
+    ADD CONSTRAINT directores_id_coordinador_estatal_fkey FOREIGN KEY (id_coordinador_estatal)
+    REFERENCES public.coordinadores_estatales (id_coordinador) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.grupos
+    ADD CONSTRAINT grupos_id_escuela_fkey FOREIGN KEY (id_escuela)
+    REFERENCES public.escuelas (id_escuela) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.horarios
+    ADD CONSTRAINT horarios_id_grupo_fkey FOREIGN KEY (id_grupo)
+    REFERENCES public.grupos (id_grupo) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.horarios
+    ADD CONSTRAINT horarios_id_profesor_fkey FOREIGN KEY (id_profesor)
+    REFERENCES public.profesores (id_profesor) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.profesores
+    ADD CONSTRAINT profesores_id_director_fkey FOREIGN KEY (id_director)
+    REFERENCES public.directores (id_director) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.transferencias_alumnos
+    ADD CONSTRAINT transferencias_alumnos_id_alumno_fkey FOREIGN KEY (id_alumno)
+    REFERENCES public.alumnos (id_alumno) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.transferencias_alumnos
+    ADD CONSTRAINT transferencias_alumnos_id_escuela_destino_fkey FOREIGN KEY (id_escuela_destino)
+    REFERENCES public.escuelas (id_escuela) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+
+ALTER TABLE IF EXISTS public.transferencias_alumnos
+    ADD CONSTRAINT transferencias_alumnos_id_escuela_origen_fkey FOREIGN KEY (id_escuela_origen)
+    REFERENCES public.escuelas (id_escuela) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION;
+
+END;
