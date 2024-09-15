@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Escuela - Sistema de Control Escolar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Registrar Escuela</h1>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="registro_escuela.html">Registrar Escuela</a></li>
+                <li><a href="registro_maestro.html">Registrar Maestro</a></li>
+                <li><a href="login.html">Iniciar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <h2>Registrar una Nueva Escuela</h2>
+            <form action="procesar_registro_escuela.php" method="POST">
+                <label for="nombre_escuela">Nombre de la Escuela:</label>
+                <input type="text" id="nombre_escuela" name="nombre_escuela" required>
+                
+                <label for="ubicacion">Ubicación:</label>
+                <input type="text" id="ubicacion" name="ubicacion" required>
+
+                <label for="nivel_escolar">Nivel Escolar:</label>
+                <select id="nivel_escolar" name="nivel_escolar" required>
+                    <option value="Preescolar">Preescolar</option>
+                    <option value="Primaria">Primaria</option>
+                    <option value="Secundaria">Secundaria</option>
+                </select>
+
+                <!-- Agrega el botón de envío del formulario -->
+                <button type="submit">Registrar Escuela</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Sistema de Control Escolar. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
